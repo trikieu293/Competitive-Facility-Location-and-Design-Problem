@@ -7,7 +7,7 @@ import math
 import itertools
 import time
 
-def tla(n_customer, alpha, beta, lamda, theta, seed):
+def tla(n_customer, epsilon, beta, lamda, theta, seed):
     random.seed(seed)
     MAP_SIZE = 100
     CUSTOMERS = n_customer
@@ -17,7 +17,7 @@ def tla(n_customer, alpha, beta, lamda, theta, seed):
     EXISTING_COMPETITIVE_FACILITIES = POTENTIAL_LOCATION // 3
     AVAILABLE_LOCATIONS = POTENTIAL_LOCATION - EXISTING_COMPETITIVE_FACILITIES
 
-    ALPHA = alpha            # approximation level
+    EPSILON = epsilon            # approximation level
     BETA = beta              # the distance sensitivity parameter
     LAMBDA = lamda           # the elasticity parameter
     THETA = theta            # sensitivity parameter of the utility function
@@ -123,7 +123,7 @@ def tla(n_customer, alpha, beta, lamda, theta, seed):
         return a * b > 0
 
     def diff_function_25(utility, customer, point):
-        return get_l(utility, customer, point) - get_omega(utility, customer) * (1.0 + ALPHA)
+        return get_l(utility, customer, point) - get_omega(utility, customer) * (1.0 + EPSILON)
 
 
     def diff_function_24(utility, customer, c):
@@ -181,7 +181,7 @@ def tla(n_customer, alpha, beta, lamda, theta, seed):
             phi_bar = get_interval_limit(customer)
 
             # Step 2
-            while get_l(phi_bar, customer, c_t) >= get_omega(phi_bar, customer) * (1.0 + ALPHA):
+            while get_l(phi_bar, customer, c_t) >= get_omega(phi_bar, customer) * (1.0 + EPSILON):
                 root = bisect(diff_function_25, c, phi_bar, customer, c_t)
                 c_dict.update({(customer, l + 1): root})
                 if root == phi_bar:
@@ -196,8 +196,8 @@ def tla(n_customer, alpha, beta, lamda, theta, seed):
                     else: # (23) not hold -> Step 3a
                         l_dict.update({customer: l})
                         c_dict.update({(customer, l + 1): phi_bar})
-                        if get_omega(c_dict.get((customer, l)), customer) * (1.0 + ALPHA) <= get_omega(phi_bar, customer):
-                            value = (get_omega(phi_bar, customer) - get_omega(c, customer) * (1.0 + ALPHA)) / (phi_bar - c)
+                        if get_omega(c_dict.get((customer, l)), customer) * (1.0 + EPSILON) <= get_omega(phi_bar, customer):
+                            value = (get_omega(phi_bar, customer) - get_omega(c, customer) * (1.0 + EPSILON)) / (phi_bar - c)
                             b_dict.update({(customer, l): value})
                         else:
                             b_dict.update({(customer, l): 0})
@@ -207,7 +207,7 @@ def tla(n_customer, alpha, beta, lamda, theta, seed):
                         l_dict.update({customer: l})
                         break
 
-            if get_l(phi_bar, customer, c_t) < get_omega(phi_bar, customer) * (1 + ALPHA):
+            if get_l(phi_bar, customer, c_t) < get_omega(phi_bar, customer) * (1 + EPSILON):
                 c_dict.update({(customer, l + 1): phi_bar})
                 l_dict.update({customer: l})
 
